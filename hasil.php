@@ -60,6 +60,12 @@
                                                 <button class="btn btn-primary" type="button" id="hasil">Hasil</button>
                                             </div>
 
+                                            <div class="mt-3">
+                                                Waktu : <br>
+                                                <span id="time-citra"></span> <span>Second</span> <br>
+                                                <span id="time-mili-citra"></span> <span>Milisecond</span>
+                                            </div>
+
                                             <div class="mt-4">
                                                 <div class="row">
                                                     <div class="col-6">
@@ -313,20 +319,34 @@
             })
         }
 
-        hasil.addEventListener('click', async function (e) {
-            await getImageAsli()
-            await getImageEnkripsi()
+        hasil.addEventListener('click', function (e) {
+            const startTime = performance.now();
 
-            const mseValue = mse(clampedArrayAsli, clampedArrayEnkripsi)
-            const psnrValue = psnr(mseValue)
-            const kategoriValue = psnrCategory(psnrValue.toFixed(0)) 
+            (async function () {
+                await getImageAsli()
+                await getImageEnkripsi()
 
-            output_mse.value = mseValue.toFixed(6)
-            output_psnr.value = psnrValue.toFixed(0)
-            kategori.innerHTML = kategoriValue
+                const mseValue = mse(clampedArrayAsli, clampedArrayEnkripsi)
+                const psnrValue = psnr(mseValue)
+                const kategoriValue = psnrCategory(psnrValue.toFixed(0)) 
 
-            setHistogramAsli()
-            setHistogramEnkripsi()
+                output_mse.value = mseValue.toFixed(6)
+                output_psnr.value = psnrValue.toFixed(0)
+                kategori.innerHTML = kategoriValue
+
+                await setHistogramAsli()
+                await setHistogramEnkripsi()
+            }());
+
+            const endTime = performance.now();
+                    
+            $('#time-citra').html(
+                millisToMinutesAndSeconds(endTime - startTime)
+            );
+
+            $('#time-mili-citra').html(
+                endTime - startTime
+            );
         });
         </script>
 

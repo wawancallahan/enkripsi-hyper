@@ -63,6 +63,12 @@
                                                     </div>
                                                     
                                                 </form>  
+
+                                                <div class="mt-3">
+                                                    Waktu : <br>
+                                                    <span id="time-citra"></span> <span>Second</span> <br>
+                                                    <span id="time-mili-citra"></span> <span>Milisecond</span>
+                                                </div>
                                             </div>
                                             <div class="col-6">
                                                 <canvas id="citra_enkripsi" width="1024" height="1024" class="d-none"></canvas>
@@ -161,6 +167,7 @@
         }
 
         ekstraksi.addEventListener('click', function (e) {
+            const startTime = performance.now();
             let file = citra.files[0];
             let fileReader = new FileReader();
 
@@ -193,7 +200,16 @@
                     } else {
                         downloadString("", "text/plain", Date.now() + '-isi_teks.txt')
                     }
+
+                    const endTime = performance.now();
                     
+                    $('#time-citra').html(
+                        millisToMinutesAndSeconds(endTime - startTime)
+                    );
+
+                    $('#time-mili-citra').html(
+                        endTime - startTime
+                    );
                 }
             }
 

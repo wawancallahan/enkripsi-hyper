@@ -68,6 +68,12 @@
                                                     </div>
                                                     
                                                 </form>  
+
+                                                <div class="mt-3">
+                                                    Waktu : <br>
+                                                    <span id="time-citra"></span> <span>Second</span> <br>
+                                                    <span id="time-mili-citra"></span> <span>Milisecond</span>
+                                                </div>
                                             </div>
                                             <div class="col-6">
                                                 <canvas id="citra_asli" width="1024" height="1024" class="d-none"></canvas>
@@ -172,6 +178,8 @@
         });
 
         enkripsi.addEventListener('click', function (e) {
+            const startTime = performance.now();
+
             const secretKey = key.value.split('').map(function (it) {
                 return it.charCodeAt(0)
             });
@@ -199,6 +207,16 @@
                     
                     clampedArray.data = clampedArrayAddText.imageData
                     ctx_enkripsi.putImageData(clampedArray, 0, 0);   
+
+                    const endTime = performance.now();
+
+                    $('#time-citra').html(
+                        millisToMinutesAndSeconds(endTime - startTime)
+                    );
+
+                    $('#time-mili-citra').html(
+                        endTime - startTime
+                    );
                 }
             }
 
