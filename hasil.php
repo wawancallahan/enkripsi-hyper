@@ -100,6 +100,19 @@
                                                         <div id="histogram_enkripsi_b"></div>
                                                     </div>
                                                 </div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <label for="" class="mb-1">Tabel Perubahan Pixel</label>
+                                                        <table class="table">
+                                                            <thead>
+                                                                <th>Index Pixel</th>
+                                                                <th>Pixel Citra Asli</th>
+                                                                <th>Pixel Citra Stego</th>
+                                                            </thead>
+                                                            <tbody id="table-pixel"></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div>
                                                 <canvas id="citra_enkripsi" width="1024" height="1024" class="d-none"></canvas>
@@ -174,6 +187,9 @@
 
         let clampedArrayAsli = undefined;
         let clampedArrayEnkripsi = undefined;
+
+        const showFirstPixel = 20;
+        const showLastPixel = 5;
 
         const getImageAsli = function () {
             return new Promise(function (resolve, reject) {
@@ -319,6 +335,80 @@
             })
         }
 
+        const setPerubahanPixel = function () {
+            return new Promise(function (resolve, reject) {
+                const pixelFirstData = [];
+                const pixelLastData = [];
+
+                let totalFirstPixel = 0;
+                let totalLastPixel = 0;
+
+                for (let i = 0; i < clampedArrayAsli.data.length; i += 4) {
+                    if (totalFirstPixel > showFirstPixel) break;
+
+                    pixelFirstData.push(
+                        {
+                            pixel: i,
+                            pixelAsli: clampedArrayAsli.data[i],
+                            pixelEnkripsi: clampedArrayEnkripsi.data[i],
+                        },
+                        {
+                            pixel: i + 1,
+                            pixelAsli: clampedArrayAsli.data[i + 1],
+                            pixelEnkripsi: clampedArrayEnkripsi.data[i + 1],
+                        },
+                        {
+                            pixel: i + 2,
+                            pixelAsli: clampedArrayAsli.data[i + 2],
+                            pixelEnkripsi: clampedArrayEnkripsi.data[i + 2],
+                        },
+                    )
+
+                    totalFirstPixel += 3;
+                }
+
+                for (let i = clampedArrayAsli.data.length; i > 0; i -= 4) {
+                    if (totalLastPixel > showLastPixel) break;
+                    
+                    pixelLastData.push(
+                        {
+                            pixel: i - 1,
+                            pixelAsli: clampedArrayAsli.data[i - 1],
+                            pixelEnkripsi: clampedArrayEnkripsi.data[i - 1],
+                        },
+                        {
+                            pixel: i - 2,
+                            pixelAsli: clampedArrayAsli.data[i - 2],
+                            pixelEnkripsi: clampedArrayEnkripsi.data[i - 2],
+                        },
+                        {
+                            pixel: i - 3,
+                            pixelAsli: clampedArrayAsli.data[i - 3],
+                            pixelEnkripsi: clampedArrayEnkripsi.data[i - 3],
+                        },
+                    )
+
+                    totalLastPixel += 3;
+                }
+
+                $('#table-pixel').html(
+                    [
+                        ...pixelFirstData.slice(0, showFirstPixel), 
+                        { separator: true },
+                        ...pixelLastData.slice(0, showLastPixel).reverse()
+                    ].map((item) => {
+                        if (item.separator) {
+                            return `<tr><td colspan="3">...</td></tr>`;
+                        }
+
+                        return `<tr><td>${item.pixel}</td> <td>${item.pixelAsli}</td> <td>${item.pixelEnkripsi}</td><tr>`
+                    })
+                )
+                
+                resolve()
+            })
+        }
+
         hasil.addEventListener('click', function (e) {
             const startTime = performance.now();
 
@@ -336,6 +426,8 @@
 
                 await setHistogramAsli()
                 await setHistogramEnkripsi()
+
+                await setPerubahanPixel();
             }());
 
             const endTime = performance.now();
